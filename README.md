@@ -4,7 +4,7 @@
 
 A ₹3,000 clip-on sensor pod retrofits condition monitoring onto any machine, of any age, in about ten minutes — no rewiring, no PLC, no downtime.
 
-🔗 **Live demo:** _add your Netlify URL here after deploying_
+🔗 **Live demo:** https://fastmachinepulse.netlify.app
 
 ---
 
