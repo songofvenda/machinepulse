@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MachinePulse — live demo</title>
+<meta name="description" content="Retrofit predictive maintenance and a decision twin for MSME manufacturing. Interactive demo.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070F1E; --panel:#0E1B30; --panel2:#132340; --line:#1E3253; --line2:#2A456C;
+  --blue:#3B82F6; --blue-d:#1D4ED8; --blue-soft:rgba(59,130,246,.14);
+  --green:#10B981; --green-soft:rgba(16,185,129,.14);
+  --amber:#F59E0B; --amber-soft:rgba(245,158,11,.14);
+  --red:#EF4444; --red-soft:rgba(239,68,68,.14);
+  --violet:#8B7BF0; --violet-soft:rgba(139,123,240,.14);
+  --txt:#E8EFF7; --mut:#93A9C4; --dim:#64809F;
+  --sans:'Inter',system-ui,-apple-system,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--txt);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;background:none;color:inherit}
+a{color:var(--blue);text-decoration:none}
+.wrap{max-width:1280px;margin:0 auto;padding:0 22px}
+.mono{font-family:var(--mono)}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:60;background:rgba(7,15,30,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
+  padding:calc(13px + env(safe-area-inset-top,0px)) 0 13px}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:11px}
+.brand .lg{width:34px;height:34px;border-radius:9px;background:var(--blue-d);display:flex;align-items:center;justify-content:center;flex:none}
+.brand .lg svg{width:19px;height:19px;stroke:#fff;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.brand b{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.brand span{font-size:12px;color:var(--dim);display:block;margin-top:-2px}
+.live{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--green);background:var(--green-soft);
+  border:1px solid rgba(16,185,129,.3);padding:5px 12px;border-radius:100px;font-weight:600}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--green);animation:blip 1.8s ease-in-out infinite}
+@keyframes blip{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ---------- hero ---------- */
+.hero{padding:62px 0 34px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(900px 500px at 78% -10%,rgba(59,130,246,.22),transparent 62%)}
+.hero .wrap{position:relative;z-index:2}
+.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:.16em;color:var(--blue);margin-bottom:18px}
+.eyebrow::before{content:'';width:8px;height:2px;background:var(--blue)}
+h1{font-size:clamp(32px,5.2vw,58px);font-weight:800;line-height:1.06;letter-spacing:-.028em;margin-bottom:18px}
+h1 em{font-style:normal;color:var(--blue)}
+.lede{font-size:clamp(15px,1.7vw,19px);color:var(--mut);max-width:62ch;line-height:1.6}
+.pills{display:flex;flex-wrap:wrap;gap:9px;margin-top:26px}
+.pills span{font-size:13px;color:var(--mut);background:var(--panel);border:1px solid var(--line);padding:7px 14px;border-radius:100px}
+
+/* ---------- try banner ---------- */
+.try{margin:34px 0 0;background:linear-gradient(90deg,rgba(59,130,246,.15),rgba(139,123,240,.10));
+  border:1px solid var(--line2);border-radius:14px;padding:18px 22px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.try b{font-size:15px;color:#fff}
+.try ol{display:flex;gap:22px;flex-wrap:wrap;list-style:none;counter-reset:t;font-size:13.5px;color:var(--mut)}
+.try li{counter-increment:t;display:flex;align-items:center;gap:8px}
+.try li::before{content:counter(t);width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;
+  font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+
+/* ---------- sections ---------- */
+section{padding:48px 0;scroll-margin-top:86px}
+.shead{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:22px;flex-wrap:wrap}
+.shead h2{font-size:clamp(22px,2.6vw,30px);font-weight:700;letter-spacing:-.02em}
+.shead p{font-size:14px;color:var(--mut);margin-top:5px;max-width:62ch}
+
+/* ---------- kpi strip ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+.kpi .v{font-size:27px;font-weight:700;letter-spacing:-.02em;font-family:var(--mono)}
+.kpi .l{font-size:12.5px;color:var(--dim);margin-top:4px}
+.kpi .v.g{color:var(--green)} .kpi .v.a{color:var(--amber)} .kpi .v.b{color:var(--blue)}
+
+/* ---------- control bar ---------- */
+.ctrl{background:var(--panel2);border:1px solid var(--line2);border-radius:14px;padding:16px 20px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+.ctrl .lab{font-size:13px;color:var(--mut);margin-right:auto}
+.ctrl .lab b{color:#fff;display:block;font-size:14.5px;margin-bottom:2px}
+.btn{display:inline-flex;align-items:center;gap:9px;padding:11px 18px;border-radius:10px;font-size:14px;font-weight:600;
+  background:var(--panel);border:1px solid var(--line2);color:var(--txt);transition:.15s}
+.btn:hover{background:var(--line);transform:translateY(-1px)}
+.btn.danger{background:var(--red);border-color:var(--red);color:#fff}
+.btn.danger:hover{background:#DC2626}
+.btn.ok{background:var(--green);border-color:var(--green);color:#052e21}
+.btn.primary{background:var(--blue-d);border-color:var(--blue-d);color:#fff}
+.btn:disabled{opacity:.45;cursor:default;transform:none}
+.btn svg{width:16px;height:16px;stroke:currentColor;stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- machine grid ---------- */
+.fleet{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.mc{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;position:relative;overflow:hidden;transition:.25s}
+.mc.focus{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue),0 12px 34px rgba(59,130,246,.16)}
+.mc.crit{border-color:var(--red);box-shadow:0 0 0 1px var(--red),0 12px 34px rgba(239,68,68,.18)}
+.mc.crit::before{content:'';position:absolute;inset:0;background:var(--red-soft);pointer-events:none;animation:pulseBg 1.6s ease-in-out infinite}
+@keyframes pulseBg{0%,100%{opacity:.35}50%{opacity:.9}}
+.mc > *{position:relative;z-index:2}
+.mc-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+.mc-n{font-size:16px;font-weight:700;line-height:1.25}
+.mc-s{font-size:12px;color:var(--dim);font-family:var(--mono);margin-top:3px}
+.st{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:100px;white-space:nowrap}
+.st i{width:6px;height:6px;border-radius:50%}
+.st.ok{background:var(--green-soft);color:var(--green)} .st.ok i{background:var(--green)}
+.st.warn{background:var(--amber-soft);color:var(--amber)} .st.warn i{background:var(--amber)}
+.st.bad{background:var(--red-soft);color:var(--red)} .st.bad i{background:var(--red);animation:blip 1s infinite}
+.hrow{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.hval{font-size:32px;font-weight:700;font-family:var(--mono);letter-spacing:-.03em;transition:color .4s}
+.hlab{font-size:12px;color:var(--dim)}
+.hbar{height:6px;border-radius:100px;background:var(--line);overflow:hidden;margin-bottom:15px}
+.hbar i{display:block;height:100%;border-radius:100px;transition:width .6s cubic-bezier(.22,1,.36,1),background .4s}
+.mets{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding-top:13px;border-top:1px solid var(--line)}
+.met .mk{font-size:10.5px;color:var(--dim);margin-bottom:3px}
+.met .mv{font-size:14px;font-weight:600;font-family:var(--mono)}
+.mstate{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--mut);margin-bottom:13px}
+.mstate .sd{width:8px;height:8px;border-radius:2px;background:var(--green)}
+.mstate .sd.idle{background:var(--dim)} .mstate .sd.off{background:var(--line2)}
+.oee{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--dim);margin-top:13px}
+.oee .ob{flex:1;height:5px;border-radius:100px;background:var(--line);overflow:hidden}
+.oee .ob i{display:block;height:100%;background:var(--blue);border-radius:100px;transition:width .6s}
+.spark{width:100%;height:34px;display:block;margin-top:12px}
+.nfcbtn{width:100%;margin-top:14px;padding:9px;border-radius:9px;background:var(--blue-soft);border:1px solid rgba(59,130,246,.3);
+  color:var(--blue);font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px}
+.nfcbtn:hover{background:rgba(59,130,246,.22)}
+.nfcbtn svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none}
+
+/* ---------- whatsapp ---------- */
+.wa-wrap{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:330px;z-index:80;
+  transform:translateY(140%);transition:transform .5s cubic-bezier(.32,.72,0,1);max-width:calc(100vw - 40px)}
+.wa-wrap.in{transform:none}
+.wa{background:#0B141A;border:1px solid #1F2C34;border-radius:16px;overflow:hidden;box-shadow:0 22px 60px rgba(0,0,0,.6)}
+.wa-h{display:flex;align-items:center;gap:11px;padding:13px 15px;background:#1F2C34}
+.wa-av{width:34px;height:34px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;flex:none}
+.wa-av svg{width:19px;height:19px;fill:#0B141A}
+.wa-n{font-size:14.5px;font-weight:700;color:#E9EDEF;line-height:1.2}
+.wa-s{font-size:11.5px;color:#8696A0}
+.wa-x{margin-left:auto;color:#8696A0;font-size:20px;line-height:1;padding:2px 6px}
+.wa-b{padding:15px;max-height:320px;overflow-y:auto}
+.wb{background:#202C33;border-radius:10px;padding:11px 13px;font-size:13.5px;line-height:1.5;color:#E9EDEF;margin-bottom:9px;max-width:95%;
+  animation:pop .35s cubic-bezier(.22,1,.36,1)}
+@keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.wb.me{background:#005C4B;margin-left:auto}
+.wb .tt{font-weight:700;color:#F87171;display:block;margin-bottom:5px}
+.wb .rw{color:#C6D2D8} .wb .rw b{color:#fff;font-weight:600}
+.wb .tm{font-size:11px;color:#8696A0;text-align:right;margin-top:6px}
+
+/* ---------- twin ---------- */
+.twin{display:grid;grid-template-columns:330px 1fr;gap:18px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}
+.panel h3{font-size:16px;font-weight:700;margin-bottom:4px}
+.panel .ph{font-size:12.5px;color:var(--dim);margin-bottom:20px}
+.sl{margin-bottom:22px}
+.sl-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+.sl-h .k{font-size:13.5px;color:var(--mut)}
+.sl-h .v{font-size:15px;font-weight:700;font-family:var(--mono);color:var(--blue)}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:100px;background:var(--line2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:19px;height:19px;border-radius:50%;background:var(--blue);
+  border:3px solid var(--panel);box-shadow:0 2px 8px rgba(0,0,0,.5);margin-top:-7px}
+input[type=range]::-moz-range-track{height:5px;border-radius:100px;background:var(--line2)}
+input[type=range]::-moz-range-thumb{width:19px;height:19px;border-radius:50%;background:var(--blue);border:3px solid var(--panel)}
+.held{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:14px;margin-top:6px}
+.held .ht{font-size:11px;letter-spacing:.1em;color:var(--dim);font-weight:700;margin-bottom:9px}
+.held .hi{font-size:12.5px;color:var(--mut);display:flex;justify-content:space-between;gap:10px;padding:4px 0}
+.held .hi b{color:var(--txt);font-family:var(--mono);font-size:12px}
+.out{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.oc{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+.oc .ov{font-size:22px;font-weight:700;font-family:var(--mono);letter-spacing:-.02em;transition:color .3s}
+.oc .ol{font-size:11.5px;color:var(--dim);margin-top:4px;line-height:1.4}
+.rec{margin-top:16px;padding:15px 17px;border-radius:12px;font-size:14px;line-height:1.55;transition:.3s}
+.rec.good{background:var(--green-soft);border:1px solid rgba(16,185,129,.3);color:#6EE7B7}
+.rec.warn{background:var(--amber-soft);border:1px solid rgba(245,158,11,.3);color:#FCD34D}
+.rec.bad{background:var(--red-soft);border:1px solid rgba(239,68,68,.3);color:#FCA5A5}
+.rec b{color:#fff}
+
+/* ---------- modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(3,8,17,.72);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:.25s;z-index:90}
+.scrim.open{opacity:1;pointer-events:auto}
+.modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-46%) scale(.97);opacity:0;pointer-events:none;
+  width:min(430px,92vw);max-height:88vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line2);border-radius:20px;z-index:95;transition:.28s cubic-bezier(.32,.72,0,1)}
+.modal.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.mh{padding:20px 22px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.mh .tap{font-size:11.5px;color:var(--blue);font-weight:700;letter-spacing:.1em;margin-bottom:6px;display:flex;align-items:center;gap:7px}
+.mh h3{font-size:19px;font-weight:700}
+.mh .sid{font-size:12.5px;color:var(--dim);font-family:var(--mono);margin-top:3px}
+.mx{color:var(--dim);font-size:22px;line-height:1;padding:2px 6px}
+.mb{padding:18px 22px 22px}
+.rec-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
+.rec-row:last-of-type{border-bottom:none}
+.rec-row .k{color:var(--mut)} .rec-row .v{font-weight:700;font-family:var(--mono);font-size:13.5px}
+.rec-row .v.bad{color:var(--red)} .rec-row .v.ok{color:var(--green)} .rec-row .v.am{color:var(--amber)}
+.mbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.mbtns .b1{background:var(--red-soft);border:1px solid rgba(239,68,68,.3);color:#FCA5A5;padding:12px;border-radius:10px;font-weight:600;font-size:13.5px}
+.mbtns .b2{background:var(--blue-d);color:#fff;padding:12px;border-radius:10px;font-weight:600;font-size:13.5px}
+
+/* ---------- how ---------- */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stp{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+.stp .n{font-family:var(--mono);font-size:11.5px;color:var(--blue);margin-bottom:12px;letter-spacing:.08em}
+.stp h4{font-size:16px;font-weight:700;margin-bottom:8px}
+.stp p{font-size:13.5px;color:var(--mut);line-height:1.55}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line);padding:30px 0 44px;margin-top:30px}
+footer .wrap{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--dim)}
+.disc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 18px;font-size:12.5px;color:var(--mut);margin-top:18px;line-height:1.6}
+
+@media(max-width:1000px){
+  .fleet{grid-template-columns:repeat(2,1fr)} .twin{grid-template-columns:1fr}
+  .out{grid-template-columns:repeat(2,1fr)} .steps{grid-template-columns:repeat(2,1fr)}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:640px){
+  .fleet{grid-template-columns:1fr} .steps{grid-template-columns:1fr}
+  .wa-wrap{right:12px;left:12px;width:auto}
+  .try ol{gap:12px}
+  .brand span{display:none}
+  .brand b{font-size:16px}
+  .live .lx{display:none}
+  .live{font-size:11.5px;padding:5px 10px;white-space:nowrap}
+  .nav .wrap{padding:0 16px}
+  .wrap{padding:0 16px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <div class="brand">
+      <div class="lg"><svg viewBox="0 0 24 24"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div>
+      <div><b>MachinePulse</b><span>Retrofit predictive maintenance · MSME manufacturing</span></div>
+    </div>
+    <span class="live"><i></i> Live demo<span class="lx"> · simulated plant</span></span>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">DEEPTECH &amp; MANUFACTURING</div>
+    <h1>Every machine warns you before it fails.<br>On India's shop floors, <em>nobody is listening.</em></h1>
+    <p class="lede">A ₹3,000 clip-on sensor pod retrofits predictive maintenance onto any machine, of any age, in about ten minutes — no rewiring, no PLC, no downtime. This page is the live product: watch a real fault develop, receive the alert, tap a machine tag, and simulate a decision before making it.</p>
+    <div class="pills">
+      <span>Works on 30-year-old machines</span>
+      <span>True OEE without a PLC</span>
+      <span>Alerts on WhatsApp</span>
+      <span>Tap-to-open machine record</span>
+      <span>Digital twin what-if</span>
+    </div>
+
+    <div class="try">
+      <b>Try it yourself →</b>
+      <ol>
+        <li>Induce a bearing fault</li>
+        <li>Watch health collapse</li>
+        <li>Get the WhatsApp alert</li>
+        <li>Tap a machine tag</li>
+        <li>Run the twin</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<!-- ================= FLEET ================= -->
+<section id="floor">
+  <div class="wrap">
+    <div class="shead">
+      <div>
+        <h2>Shop floor — live</h2>
+        <p>Six machines in a simulated MSME unit. Every value updates in real time from the sensor pod: vibration, temperature, current draw, machine state, utilisation and health.</p>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="v b" id="kMach">6</div><div class="l">machines monitored</div></div>
+      <div class="kpi"><div class="v g" id="kOee">—</div><div class="l">average utilisation today</div></div>
+      <div class="kpi"><div class="v a" id="kTkt">0</div><div class="l">open service tickets</div></div>
+      <div class="kpi"><div class="v" id="kEnergy">₹0</div><div class="l">energy consumed today</div></div>
+    </div>
+
+    <div class="ctrl">
+      <div class="lab"><b>Fault injection — VMC-04, Bay 2</b>This is what happens on a real machine when a bearing starts to go.</div>
+      <button class="btn danger" id="btnFault" onclick="induceFault()">
+        <svg viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+        Induce bearing fault
+      </button>
+      <button class="btn ok" id="btnFix" onclick="resolveFault()" disabled>
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Replace bearing &amp; resolve
+      </button>
+    </div>
+
+    <div class="fleet" id="fleet"></div>
+
+    <div class="disc">This is a demonstration running on simulated shop-floor data so it can be explored without a live plant. The sensing hardware, alerting and twin logic are real and running on an instrumented test rig. MachinePulse monitors machine health only — it never controls a machine.</div>
+  </div>
+</section>
+
+<!-- ================= TWIN ================= -->
+<section id="twin">
+  <div class="wrap">
+    <div class="shead">
+      <div>
+        <h2>Digital twin — test the decision before you make it</h2>
+        <p>Everyone sells a dashboard that reports what already happened. Move the sliders and the twin projects what this machine does next — because a plant manager's real question is "what happens if I do this?"</p>
+      </div>
+    </div>
+
+    <div class="twin">
+      <div class="panel">
+        <h3>Change one thing</h3>
+        <p class="ph">Everything else is held exactly as the machine runs today.</p>
+
+        <div class="sl">
+          <div class="sl-h"><span class="k">Daily running hours</span><span class="v" id="vHours">16 h</span></div>
+          <input type="range" id="sHours" min="8" max="24" step="1" value="16" oninput="runTwin()">
+        </div>
+        <div class="sl">
+          <div class="sl-h"><span class="k">Load / feed rate</span><span class="v" id="vLoad">100%</span></div>
+          <input type="range" id="sLoad" min="70" max="150" step="5" value="100" oninput="runTwin()">
+        </div>
+        <div class="sl">
+          <div class="sl-h"><span class="k">Service deferred by</span><span class="v" id="vDefer">0 days</span></div>
+          <input type="range" id="sDefer" min="0" max="90" step="5" value="0" oninput="runTwin()">
+        </div>
+
+        <div class="held">
+          <div class="ht">HELD CONSTANT</div>
+          <div class="hi"><span>Machine</span><b>VMC-04</b></div>
+          <div class="hi"><span>Tool &amp; material</span><b>unchanged</b></div>
+          <div class="hi"><span>Ambient temperature</span><b>34 °C</b></div>
+          <div class="hi"><span>Operator &amp; shift pattern</span><b>unchanged</b></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Projected over the next 180 days</h3>
+        <p class="ph">Health trajectory with a P10–P90 confidence band, not a single confident date.</p>
+        <div class="out">
+          <div class="oc"><div class="ov" id="oFail">—</div><div class="ol">days to service threshold</div></div>
+          <div class="oc"><div class="ov" id="oRul">—</div><div class="ol">bearing life remaining</div></div>
+          <div class="oc"><div class="ov" id="oEnergy">—</div><div class="ol">energy cost, 6 months</div></div>
+          <div class="oc"><div class="ov" id="oRisk">—</div><div class="ol">risk of unplanned stop</div></div>
+        </div>
+        <svg id="twinChart" viewBox="0 0 700 220" style="width:100%;height:auto;display:block" aria-label="Projected machine health over 180 days"></svg>
+        <div class="rec good" id="twinRec">Move a slider to project a scenario.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOW ================= -->
+<section id="how">
+  <div class="wrap">
+    <div class="shead"><div><h2>How it works</h2><p>Four stages, and none of them require opening the machine.</p></div></div>
+    <div class="steps">
+      <div class="stp"><div class="n">01 · CONNECT</div><h4>Clip it on</h4><p>Vibration, temperature, current and sound read from outside. A split-core clamp reads the supply line without touching a conductor. Ten minutes, any machine, any age.</p></div>
+      <div class="stp"><div class="n">02 · ANALYSE</div><h4>Learn this machine</h4><p>Each machine learns its own normal within hours. The current signature alone separates off from idle from running under load — that is true OEE with no PLC.</p></div>
+      <div class="stp"><div class="n">03 · PREDICT</div><h4>Name the fault</h4><p>Not "something is wrong" — imbalance, bearing wear, thermal overload, with a failure window given as a probability band.</p></div>
+      <div class="stp"><div class="n">04 · ACT</div><h4>Reach a human</h4><p>Andon light at the machine, WhatsApp to the maintenance person in his language, ticket raised, spare flagged for reorder before it is needed.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span><b style="color:var(--txt)">MachinePulse</b> · Smartronics Technology, Pune</span>
+    <span>Retrofit predictive maintenance &amp; digital twin for MSME manufacturing</span>
+  </div>
+</footer>
+
+<!-- ================= WHATSAPP ================= -->
+<div class="wa-wrap" id="waWrap">
+  <div class="wa">
+    <div class="wa-h">
+      <div class="wa-av"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.6 4.8-1.3A10 10 0 1 0 12 2z"/></svg></div>
+      <div><div class="wa-n">MachinePulse Alerts</div><div class="wa-s">Maintenance group · 4 members</div></div>
+      <button class="wa-x" onclick="hideWa()">&times;</button>
+    </div>
+    <div class="wa-b" id="waBody"></div>
+  </div>
+</div>
+
+<!-- ================= NFC MODAL ================= -->
+<div class="scrim" id="scrim" onclick="closeModal()"></div>
+<div class="modal" id="modal">
+  <div class="mh">
+    <div>
+      <div class="tap">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none"><path d="M6 8.5a7 7 0 0 1 0 7M10 6a11 11 0 0 1 0 12M14 4.5a15 15 0 0 1 0 15"/></svg>
+        NFC TAG SCANNED
+      </div>
+      <h3 id="mName">—</h3>
+      <div class="sid" id="mId">—</div>
+    </div>
+    <button class="mx" onclick="closeModal()">&times;</button>
+  </div>
+  <div class="mb" id="mBody"></div>
+</div>
+
+<script>
+/* ============================================================
+   Fleet state
+   ============================================================ */
+var MACHINES=[
+ {id:'VMC-04', name:'Vertical machining centre', loc:'Bay 2',  make:'Jyoti VMC 640', yr:2011, hours:14208, svc:'2 Aug 2026', pm:'overdue by 9 days',
+  base:{v:0.22,t:44,c:18.4}, h:96, oee:74, state:'load', hist:[]},
+ {id:'LTH-02', name:'CNC lathe',                 loc:'Bay 1',  make:'ACE Jobber XL', yr:2016, hours:9840,  svc:'19 Aug 2026', pm:'in 22 days',
+  base:{v:0.17,t:39,c:12.1}, h:94, oee:81, state:'load', hist:[]},
+ {id:'CMP-01', name:'Air compressor',            loc:'Utility',make:'ELGi EG 30',   yr:2009, hours:31120, svc:'28 Jul 2026', pm:'in 6 days',
+  base:{v:0.31,t:52,c:26.8}, h:71, oee:92, state:'run',  hist:[]},
+ {id:'PRS-03', name:'Power press, 60T',          loc:'Bay 3',  make:'Rajesh 60T',   yr:2004, hours:22415, svc:'11 Aug 2026', pm:'in 14 days',
+  base:{v:0.28,t:41,c:9.6},  h:88, oee:58, state:'idle', hist:[]},
+ {id:'GRD-05', name:'Surface grinder',           loc:'Bay 3',  make:'Bhagwansons', yr:1998, hours:40760, svc:'3 Sep 2026',  pm:'in 31 days',
+  base:{v:0.24,t:37,c:5.2},  h:83, oee:44, state:'idle', hist:[]},
+ {id:'INJ-06', name:'Injection moulding, 80T',   loc:'Bay 4',  make:'Windsor 80',   yr:2013, hours:18330, svc:'25 Aug 2026', pm:'in 18 days',
+  base:{v:0.19,t:58,c:31.5}, h:91, oee:86, state:'run',  hist:[]}
+];
+var faulted=false, faultProg=0, tickets=0, energy=6240, alerted=false, waMsgs=0;
+var RATE=8.4; // rupees per unit
+
+/* seed history */
+MACHINES.forEach(function(m){ for(var i=0;i<28;i++) m.hist.push(m.h + Math.sin(i*0.8)*1.1); });
+
+function statusOf(h){ return h>=80?'ok':(h>=55?'warn':'bad'); }
+function statusTxt(h){ return h>=80?'Healthy':(h>=55?'Warning':'Critical'); }
+function colOf(h){ return h>=80?'var(--green)':(h>=55?'var(--amber)':'var(--red)'); }
+function stateTxt(s){ return s==='load'?'Running under load':(s==='run'?'Running':(s==='idle'?'Idle':'Off')); }
+
+/* ============================================================
+   Render
+   ============================================================ */
+function buildFleet(){
+  var el=document.getElementById('fleet'); el.innerHTML='';
+  MACHINES.forEach(function(m){
+    var d=document.createElement('div');
+    d.className='mc'+(m.id==='VMC-04'?' focus':'');
+    d.id='card-'+m.id;
+    d.innerHTML=
+      '<div class="mc-h"><div><div class="mc-n">'+m.name+'</div><div class="mc-s">'+m.id+' · '+m.loc+' · '+m.make+'</div></div>'+
+      '<span class="st '+statusOf(m.h)+'" id="st-'+m.id+'"><i></i>'+statusTxt(m.h)+'</span></div>'+
+      '<div class="mstate"><span class="sd '+(m.state==='idle'?'idle':(m.state==='off'?'off':''))+'" id="sd-'+m.id+'"></span><span id="sx-'+m.id+'">'+stateTxt(m.state)+'</span></div>'+
+      '<div class="hrow"><span class="hval" id="hv-'+m.id+'">'+Math.round(m.h)+'</span><span class="hlab">health score</span></div>'+
+      '<div class="hbar"><i id="hb-'+m.id+'" style="width:'+m.h+'%;background:'+colOf(m.h)+'"></i></div>'+
+      '<svg class="spark" id="sp-'+m.id+'" viewBox="0 0 260 34" preserveAspectRatio="none"></svg>'+
+      '<div class="mets">'+
+        '<div class="met"><div class="mk">Vibration</div><div class="mv" id="mv-'+m.id+'">—</div></div>'+
+        '<div class="met"><div class="mk">Temp</div><div class="mt" ></div><div class="mv" id="mt-'+m.id+'">—</div></div>'+
+        '<div class="met"><div class="mk">Current</div><div class="mv" id="mc-'+m.id+'">—</div></div>'+
+      '</div>'+
+      '<div class="oee"><span>Utilisation</span><span class="ob"><i id="ob-'+m.id+'" style="width:'+m.oee+'%"></i></span><span class="mono" id="oo-'+m.id+'">'+m.oee+'%</span></div>'+
+      '<button class="nfcbtn" onclick="openNfc(\''+m.id+'\')">'+
+        '<svg viewBox="0 0 24 24"><path d="M6 8.5a7 7 0 0 1 0 7M10 6a11 11 0 0 1 0 12M14 4.5a15 15 0 0 1 0 15"/></svg>Tap NFC tag</button>';
+    el.appendChild(d);
+  });
+}
+
+function spark(m){
+  var pts=m.hist.slice(-28), mn=Math.min.apply(null,pts)-2, mx=Math.max.apply(null,pts)+2;
+  var s=pts.map(function(v,i){ return (i/(pts.length-1)*260).toFixed(1)+','+(34-((v-mn)/(mx-mn||1))*30-2).toFixed(1); }).join(' ');
+  var svg=document.getElementById('sp-'+m.id);
+  if(svg) svg.innerHTML='<polyline points="'+s+'" fill="none" stroke="'+colOf(m.h)+'" stroke-width="1.8" vector-effect="non-scaling-stroke"/>';
+}
+
+/* ============================================================
+   Live tick
+   ============================================================ */
+function tick(){
+  var totalOee=0;
+  MACHINES.forEach(function(m){
+    var n=function(a){ return (Math.random()-0.5)*a; };
+
+    // state machine — occasional idle/run flips
+    if(Math.random()<0.04 && m.id!=='VMC-04'){
+      var states=['load','run','idle']; m.state=states[Math.floor(Math.random()*states.length)];
+    }
+    var loadF = m.state==='load'?1:(m.state==='run'?0.82:(m.state==='idle'?0.28:0));
+
+    var vib=m.base.v*loadF+n(0.03), temp=m.base.t*(0.72+0.28*loadF)+n(0.5), cur=m.base.c*loadF+n(0.4);
+
+    if(m.id==='VMC-04' && faulted){
+      faultProg=Math.min(1,faultProg+0.14);
+      vib = m.base.v*(1+faultProg*7.5)+n(0.06);
+      temp = m.base.t+faultProg*16+n(0.4);
+      cur  = m.base.c*(1+faultProg*0.42)+n(0.3);
+      m.h  = Math.max(31, 96-faultProg*63);
+      if(m.h<55 && !alerted){ alerted=true; tickets++; fireAlert(); }
+    } else if(m.id==='VMC-04' && !faulted && faultProg>0){
+      faultProg=Math.max(0,faultProg-0.16);
+      m.h=Math.min(96, 96-faultProg*63);
+    } else {
+      m.h=Math.max(30,Math.min(99,m.h+n(0.35)));
+    }
+
+    m.hist.push(m.h); if(m.hist.length>40) m.hist.shift();
+    m.oee=Math.max(20,Math.min(97,m.oee+n(0.6)));
+    totalOee+=m.oee;
+    energy += cur*0.055*RATE;
+
+    var g=function(x){ return document.getElementById(x+'-'+m.id); };
+    if(g('mv')) g('mv').textContent=vib.toFixed(2)+' g';
+    if(g('mt')) g('mt').textContent=temp.toFixed(0)+' °C';
+    if(g('mc')) g('mc').textContent=cur.toFixed(1)+' A';
+    if(g('hv')){ g('hv').textContent=Math.round(m.h); g('hv').style.color=colOf(m.h); }
+    if(g('hb')){ g('hb').style.width=m.h+'%'; g('hb').style.background=colOf(m.h); }
+    if(g('ob')) g('ob').style.width=m.oee+'%';
+    if(g('oo')) g('oo').textContent=Math.round(m.oee)+'%';
+    if(g('st')){ g('st').className='st '+statusOf(m.h); g('st').innerHTML='<i></i>'+statusTxt(m.h); }
+    if(g('sd')) g('sd').className='sd '+(m.state==='idle'?'idle':(m.state==='off'?'off':''));
+    if(g('sx')) g('sx').textContent=stateTxt(m.state);
+    var card=document.getElementById('card-'+m.id);
+    if(card){ if(m.h<55) card.classList.add('crit'); else card.classList.remove('crit'); }
+    spark(m);
+  });
+
+  document.getElementById('kOee').textContent=Math.round(totalOee/MACHINES.length)+'%';
+  document.getElementById('kTkt').textContent=tickets;
+  document.getElementById('kEnergy').textContent='₹'+Math.round(energy).toLocaleString('en-IN');
+}
+
+/* ============================================================
+   Fault flow
+   ============================================================ */
+function induceFault(){
+  faulted=true; alerted=false;
+  document.getElementById('btnFault').disabled=true;
+  document.getElementById('btnFix').disabled=false;
+  document.getElementById('floor').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function resolveFault(){
+  faulted=false; alerted=false;
+  document.getElementById('btnFault').disabled=false;
+  document.getElementById('btnFix').disabled=true;
+  addWa('<div class="rw">Bearing replaced. Machine back to normal operation.<br>Ticket <b>MP-'+(1183+tickets)+'</b> closed as <b>verified fixed</b>.</div><div class="tm">now ✓✓</div>','me');
+}
+function fireAlert(){
+  var t=new Date(), tm=t.getHours()+':'+String(t.getMinutes()).padStart(2,'0');
+  showWa();
+  addWa('<span class="tt">⚠ Critical — VMC-04, Bay 2</span><div class="rw">Spindle vibration <b>4.2× baseline</b><br>Health score <b>'+Math.round(MACHINES[0].h)+'%</b> — falling<br>Likely cause: <b>bearing wear</b><br>Ticket <b>MP-'+(1184+tickets-1)+'</b> raised<br>Spare <b>6206-2RS</b> flagged for reorder</div><div class="tm">'+tm+'</div>','them');
+  setTimeout(function(){ addWa('Dekh raha hoon — bearing check karke update karta hoon<div class="tm">'+tm+' ✓✓</div>','me'); },2200);
+}
+function addWa(html,who){
+  var b=document.getElementById('waBody');
+  var d=document.createElement('div'); d.className='wb'+(who==='me'?' me':''); d.innerHTML=html;
+  b.appendChild(d); b.scrollTop=b.scrollHeight; waMsgs++;
+}
+function showWa(){ document.getElementById('waWrap').classList.add('in'); }
+function hideWa(){ document.getElementById('waWrap').classList.remove('in'); }
+
+/* ============================================================
+   NFC modal
+   ============================================================ */
+function openNfc(id){
+  var m=MACHINES.filter(function(x){return x.id===id;})[0];
+  document.getElementById('mName').textContent=m.name;
+  document.getElementById('mId').textContent='MP-TAG · '+m.id+' · '+m.loc;
+  var hs=Math.round(m.h), cls=hs>=80?'ok':(hs>=55?'am':'bad');
+  document.getElementById('mBody').innerHTML=
+    '<div class="rec-row"><span class="k">Health score</span><span class="v '+cls+'">'+hs+'% · '+statusTxt(hs)+'</span></div>'+
+    '<div class="rec-row"><span class="k">Current state</span><span class="v">'+stateTxt(m.state)+'</span></div>'+
+    '<div class="rec-row"><span class="k">Machine</span><span class="v">'+m.make+'</span></div>'+
+    '<div class="rec-row"><span class="k">Year of manufacture</span><span class="v">'+m.yr+'</span></div>'+
+    '<div class="rec-row"><span class="k">Running hours</span><span class="v">'+m.hours.toLocaleString('en-IN')+' h</span></div>'+
+    '<div class="rec-row"><span class="k">Utilisation today</span><span class="v">'+Math.round(m.oee)+'%</span></div>'+
+    '<div class="rec-row"><span class="k">Last service</span><span class="v">'+m.svc+'</span></div>'+
+    '<div class="rec-row"><span class="k">Next service</span><span class="v '+(m.pm.indexOf('overdue')>=0?'bad':'')+'">'+m.pm+'</span></div>'+
+    '<div class="rec-row"><span class="k">Open tickets</span><span class="v">'+(m.id==='VMC-04'&&tickets>0?tickets+' · MP-'+(1183+tickets):'none')+'</span></div>'+
+    '<div class="mbtns"><button class="b1" onclick="closeModal()">Report a problem</button><button class="b2" onclick="closeModal()">Schedule service</button></div>'+
+    '<p style="font-size:12px;color:var(--dim);margin-top:14px;line-height:1.5">On the shop floor the operator taps his phone on the tag stuck to the machine. No app, no login, no training.</p>';
+  document.getElementById('scrim').classList.add('open');
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('scrim').classList.remove('open');
+  document.getElementById('modal').classList.remove('open');
+}
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeModal(); });
+
+/* ============================================================
+   Digital twin
+   ============================================================ */
+function runTwin(){
+  var hours=+document.getElementById('sHours').value,
+      load =+document.getElementById('sLoad').value,
+      defer=+document.getElementById('sDefer').value;
+  document.getElementById('vHours').textContent=hours+' h';
+  document.getElementById('vLoad').textContent=load+'%';
+  document.getElementById('vDefer').textContent=defer+' days';
+
+  // wear rate: hours drive usage, load drives stress non-linearly, deferral removes the reset
+  var usage=hours/16, stress=Math.pow(load/100,2.4), wear=usage*stress;
+  var baseDays=142;
+  var days=Math.max(6, Math.round(baseDays/wear - defer*0.75));
+  var rul=Math.max(2, Math.round(100 - (180/Math.max(days,1))*11 - defer*0.28));
+  var kwh=hours*30*6*(load/100)*11.2;
+  var cost=Math.round(kwh*RATE/1000)*1000;
+  var risk=Math.min(97, Math.round(8 + (180-Math.min(days,180))/180*74 + defer*0.34));
+
+  var col=function(bad,warnV,v,inv){ var x=inv?v:-v; return (inv? v>=bad : v<=bad)?'var(--red)':((inv? v>=warnV : v<=warnV)?'var(--amber)':'var(--green)'); };
+  var e;
+  e=document.getElementById('oFail'); e.textContent=days+' d'; e.style.color= days<45?'var(--red)':(days<90?'var(--amber)':'var(--green)');
+  e=document.getElementById('oRul');  e.textContent=rul+'%';   e.style.color= rul<35?'var(--red)':(rul<60?'var(--amber)':'var(--green)');
+  e=document.getElementById('oEnergy');e.textContent='₹'+(cost/100000).toFixed(1)+'L'; e.style.color='var(--txt)';
+  e=document.getElementById('oRisk'); e.textContent=risk+'%';  e.style.color= risk>60?'var(--red)':(risk>35?'var(--amber)':'var(--green)');
+
+  drawTwin(days,risk);
+
+  var r=document.getElementById('twinRec');
+  if(days>=110 && risk<35){
+    r.className='rec good';
+    r.innerHTML='<b>Safe to run this way.</b> At this load the bearing reaches the service threshold in about '+days+' days, comfortably inside the next planned shutdown. No change recommended.';
+  } else if(days>=45){
+    r.className='rec warn';
+    r.innerHTML='<b>Workable, but plan for it.</b> The service threshold arrives in about '+days+' days and the risk of an unplanned stop rises to '+risk+'%. Book the bearing replacement now and order the spare this month.';
+  } else {
+    r.className='rec bad';
+    r.innerHTML='<b>Do not run this scenario.</b> The bearing reaches the threshold in about '+days+' days with a '+risk+'% chance of stopping mid-production. Either reduce the load, or service the machine before starting this schedule.';
+  }
+}
+
+function drawTwin(days,risk){
+  var W=700,H=220,L=42,R=14,T=14,B=30, pw=W-L-R, ph=H-T-B;
+  var X=function(d){ return L+(d/180)*pw; }, Y=function(h){ return T+ph-(h/100)*ph; };
+  var s='';
+  [0,25,50,75,100].forEach(function(v){
+    var y=Y(v);
+    s+='<line x1="'+L+'" y1="'+y+'" x2="'+(L+pw)+'" y2="'+y+'" stroke="#1E3253"'+(v===0?'':' stroke-dasharray="3 4"')+'/>';
+    s+='<text x="'+(L-8)+'" y="'+(y+3.5)+'" font-size="9.5" fill="#64809F" text-anchor="end" font-family="monospace">'+v+'</text>';
+  });
+  s+='<rect x="'+L+'" y="'+Y(55)+'" width="'+pw+'" height="'+(Y(0)-Y(55))+'" fill="#EF4444" opacity="0.07"/>';
+  s+='<line x1="'+L+'" y1="'+Y(55)+'" x2="'+(L+pw)+'" y2="'+Y(55)+'" stroke="#EF4444" stroke-dasharray="4 4" opacity="0.55"/>';
+  s+='<text x="'+(L+pw-4)+'" y="'+(Y(55)-6)+'" font-size="9.5" fill="#EF4444" text-anchor="end">service threshold</text>';
+
+  var band=Math.min(26,6+risk*0.24);
+  var mid=[],hi=[],lo=[];
+  for(var d=0;d<=180;d+=3){
+    var frac=d/Math.max(days,1);
+    var h=96-41*Math.pow(Math.min(frac,2.6),1.45);
+    h=Math.max(8,Math.min(99,h));
+    var sp=band*Math.min(1,d/180*1.5);
+    mid.push(X(d).toFixed(1)+','+Y(h).toFixed(1));
+    hi.push(X(d).toFixed(1)+','+Y(Math.min(99,h+sp)).toFixed(1));
+    lo.push(X(d).toFixed(1)+','+Y(Math.max(5,h-sp)).toFixed(1));
+  }
+  s+='<polygon points="'+hi.join(' ')+' '+lo.slice().reverse().join(' ')+'" fill="#3B82F6" opacity="0.16"/>';
+  s+='<polyline points="'+mid.join(' ')+'" fill="none" stroke="#3B82F6" stroke-width="2.4"/>';
+  if(days<=180){
+    s+='<line x1="'+X(days)+'" y1="'+T+'" x2="'+X(days)+'" y2="'+(T+ph)+'" stroke="#F59E0B" stroke-width="1.6" stroke-dasharray="4 3"/>';
+    s+='<circle cx="'+X(days)+'" cy="'+Y(55)+'" r="5" fill="#F59E0B" stroke="#0E1B30" stroke-width="2"/>';
+    s+='<text x="'+(X(days)+8)+'" y="'+(T+14)+'" font-size="10.5" fill="#F59E0B" font-weight="600">day '+days+'</text>';
+  }
+  [0,60,120,180].forEach(function(d){
+    s+='<text x="'+X(d)+'" y="'+(H-9)+'" font-size="9.5" fill="#64809F" text-anchor="'+(d===0?'start':(d===180?'end':'middle'))+'" font-family="monospace">'+(d===0?'today':'day '+d)+'</text>';
+  });
+  document.getElementById('twinChart').innerHTML=s;
+}
+
+/* ============================================================
+   Boot
+   ============================================================ */
+buildFleet();
+tick();
+runTwin();
+setInterval(tick,1500);
+setTimeout(function(){
+  addWa('<div class="rw">Good morning. All 6 machines reporting. Overnight: no alerts.</div><div class="tm">08:02</div>','them');
+},900);
+</script>
+</body>
+</html>
